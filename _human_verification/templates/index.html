@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>视频管理系统</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div id="grid-container"></div>
+    <button id="confirm-btn">确认移动</button>
+
+    <script>
+        $(function() {
+            const ROWS = 2;
+            const COLS = 3;
+            let currentPage = 0;
+            let allVideos = [];
+
+            function loadVideos() {
+                $.get('/api/videos', function(data) {
+                    allVideos = data;
+                    renderGrid();
+                });
+            }
+
+            function renderGrid() {
+                const start = currentPage * ROWS * COLS;
+                const end = start + ROWS * COLS;
+                const videos = allVideos.slice(start, end);
+                $('#grid-container').empty();
+
+                videos.forEach(video => {
+                    const safePath = encodeURIComponent(video.path);
+                    const videoElem = $(`
+                        <div class="video-item" data-path="${video.path}">
+                            <video autoplay muted playsinline controls>
+                                <source src="/videos/${safePath}" type="video/mp4">
+                            </video>
+                        </div>
+                    `);
+
+                    // 点击选中/取消
+                    videoElem.on('click', function () {
+                        $(this).toggleClass('selected');
+                    });
+
+                    // 防止 video 本身阻止点击
+                    videoElem.find('video').on('click', function (e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        $(this).closest('.video-item').toggleClass('selected');
+                    });
+
+                    $('#grid-container').append(videoElem);
+                });
+            }
+
+            $('#confirm-btn').click(() => {
+                const selected = [];
+                const currentPageVideos = [];
+
+                $('.video-item').each(function () {
+                    const path = $(this).data('path');
+                    currentPageVideos.push(path);
+                    if ($(this).hasClass('selected')) {
+                        selected.push(path);
+                    }
+                });
+
+                $.ajax({
+                    url: '/api/move',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ selected, currentPageVideos }),
+                    success: () => {
+                        currentPage++;
+                        loadVideos();
+                    }
+                });
+            });
+
+            loadVideos();
+        });
+    </script>
+</body>
+</html>

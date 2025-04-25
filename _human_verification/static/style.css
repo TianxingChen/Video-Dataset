@@ -1,0 +1,46 @@
+#grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 每行3个 */
+    gap: 20px;
+    padding: 20px;
+}
+
+.video-item {
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 10px;
+    background: #f9f9f9;
+    transition: border 0.3s, background-color 0.3s;
+    cursor: pointer;
+}
+
+.video-item.selected {
+    border: 3px solid #2196F3;
+    background-color: #e3f2fd;
+}
+
+video {
+    width: 100%;
+    border-radius: 4px;
+    background: #000;
+}
+
+#confirm-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 12px 25px;
+    background: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s;
+}
+
+#confirm-btn:hover {
+    background: #1976D2;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
